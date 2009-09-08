@@ -63,6 +63,7 @@ module Spec
 
           def set_description(*args) # :nodoc:
             super
+            tests ActionController::Base
             if described_class && described_class.ancestors.include?(Cell::Base)
               cell_klass = if superclass.cell_class && superclass.cell_class.ancestors.include?(Cell::Base)
                 superclass.cell_class
@@ -87,11 +88,11 @@ module Spec
             self.cell_class = "#{name}_cell".camelize.constantize
           end
 
-          def cell_class=(new_class)
+          def cell_class=(new_class) # :nodoc:
             write_inheritable_attribute(:cell_class, new_class)
           end
 
-          def cell_class
+          def cell_class # :nodoc:
             read_inheritable_attribute(:cell_class)
           end
         end
@@ -112,27 +113,27 @@ end
 MESSAGE
           end
 
-          @controller = ActionController::Base.new
-          @request    = ActionController::TestRequest.new
-          @response   = ActionController::TestResponse.new
-          @controller.request  = @request
-          @controller.response = @response
-          @controller.params   = {}
+          @controller.response = response
+          @controller.session = session
+          @controller.params = params
+          
+          self.class.cell_class.default_template_format = :html
           @cell = self.class.cell_class.new(@controller)
+          @opts = @cell.instance_variable_get(:@opts)
 
           @cell.extend CellInstanceMethods
           @cell.integrate_views! if integrate_views?
         end
 
-        attr_reader :cell
+        attr_reader :request, :controller, :cell, :opts
 
         def integrate_views?
           @integrate_views || self.class.integrate_views?
         end
 
         def render_cell(state, opts = {}, params = {})
-          @cell.instance_variable_get(:@opts).update(opts || {})
-          @request.parameters.merge!(params)
+          @opts.update(opts || {})
+          params.update(params || {})
 
           #@controller.send :forget_variables_added_to_assigns   # this fixes bug #1, PARTLY.
 
@@ -151,7 +152,7 @@ MESSAGE
 
         module CellInstanceMethods #:nodoc:
           def render_view_for(opts, state)
-            return super(state) if integrate_views?
+            return super(opts, state) if integrate_views?
             nil
           end
           

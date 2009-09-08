@@ -45,13 +45,15 @@ Put all your cells specs under <tt>spec/cells</tt> folder. Here is how
 spec looks like in general:
 
   describe VideoCell do
-    integrate_views!
-
+    integrate_views
+  
     context '.videos' do
       it 'should initialize :videos variable' do
-        videos = mock('Videos')
-        render_cell :videos, :videos => videos
-        assigns[:videos].should be(videos)
+        params[:id] = 10
+        session[:user_id] = 20
+        opts[:opt] = 'value'
+        result = render_cell :videos, { :videos => [] }, :slug => 'hello'
+        result.should have_tag('div', :class => :videos)
       end
     end
   end
