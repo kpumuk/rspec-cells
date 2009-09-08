@@ -1,4 +1,4 @@
-= RSpec Cells
+= Rspec Cells
 
 This plugin allows you to test your cells easily using RSpec.
 Basically, it adds an example group especially for cells, with
@@ -45,7 +45,6 @@ Put all your cells specs under <tt>spec/cells</tt> folder. Here is how
 spec looks like in general:
 
   describe VideoCell do
-    cell_name :video
     integrate_views!
 
     context '.videos' do
@@ -57,10 +56,17 @@ spec looks like in general:
     end
   end
 
-Please note <tt>cell_name</tt> usage: it accepts a cell name. Currently
-you should specify it manually, in the future it will be unnecessary
-as long as correct cell class will be specified in <tt>describe</tt>
-block. Then you should use <tt>render_cell</tt> method to perform cell
+Please note: when you don't pass a cell to describe, like this:
+
+  describe ThingsCell do
+
+then you must provide a <tt>cell_name</tt> within the context of
+your cell specs:
+
+  describe "ThingCell" do
+    cell_name :thing
+
+In your spec you can use <tt>render_cell</tt> method to perform cell
 rendering.
 
 By default rendering will not be performed, only code from cell class
