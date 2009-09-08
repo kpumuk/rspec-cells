@@ -2,7 +2,7 @@ module Spec
   module Cells
     module Example
       # Cell Examples live in $RAILS_ROOT/spec/cells/.
-      class CellExampleGroup < Spec::Rails::Example::RailsExampleGroup
+      class CellExampleGroup < Spec::Rails::Example::FunctionalExampleGroup
         include ActionController::TestProcess
         include ActionController::Assertions
 
@@ -52,9 +52,11 @@ module Spec
           end
 
           @controller = ActionController::Base.new
-          @request = ActionController::TestRequest.new
-          @controller.request = @request
-          @controller.params = @request.parameters
+          @request    = ActionController::TestRequest.new
+          @response   = ActionController::TestResponse.new
+          @controller.request  = @request
+          @controller.response = @response
+          @controller.params   = {}
           @cell = @cell_class.new(@controller)
 
           (class << @cell; self; end).class_eval do
@@ -75,8 +77,9 @@ module Spec
             @cell_class_name = self.class.described_type.to_s
           end
 
-          @cell_class = Object.path2class(@cell_class_name)
+          @cell_class = @cell_class_name.constantize
           raise "Can't determine cell class for #{@cell_class_name}" if @cell_class.nil?
+          @cell_class.default_template_format = :html
 
           @integrate_views = self.class.integrate_views?
         end
@@ -105,9 +108,13 @@ module Spec
         def request
           @cell.request
         end
+        
+        def assigns
+          HashWithIndifferentAccess.new(@cell.assigns_for_view)
+        end
 
         module CellInstanceMethods #:nodoc:
-          def render_view_for_state(state)
+          def render_view_for(opts, state)
             return super(state) if integrate_views?
             nil
           end
