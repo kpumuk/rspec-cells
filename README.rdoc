@@ -1,3 +1,7 @@
+= This project had been moved
+
+Check the new repository at https://github.com/apotonick/rspec-cells
+
 = Rspec Cells
 
 This plugin allows you to test your cells easily using RSpec.
