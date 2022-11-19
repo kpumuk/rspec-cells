@@ -1,6 +1,6 @@
 = This project had been moved
 
-Check the new repository at https://github.com/apotonick/rspec-cells
+Check the new repository at https://github.com/trailblazer/rspec-cells
 
 = Rspec Cells
 
